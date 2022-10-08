@@ -20,7 +20,7 @@ jobs:
     # The type of runner that the job will run on
     strategy:
       matrix:
-        python-versions: [3.6, '3.10']
+        python-versions: [3.8, '3.10']
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
 
@@ -34,7 +34,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip wheel
           pip install -r requirements_dev.txt
 
       - name: Lint with flake8
