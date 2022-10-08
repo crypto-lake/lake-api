@@ -6,9 +6,6 @@ Lake API
 .. image:: https://img.shields.io/pypi/v/lakeapi.svg
         :target: https://pypi.python.org/pypi/lakeapi
 
-.. image:: https://img.shields.io/travis/leftys/lakeapi.svg
-        :target: https://travis-ci.com/leftys/lakeapi
-
 .. image:: https://readthedocs.org/projects/lakeapi/badge/?version=latest
         :target: https://lakeapi.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
