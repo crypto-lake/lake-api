@@ -19,7 +19,7 @@ Lake API
 API for accessing Lake crypto market data.
 
 
-* Free software: MIT license
+* Free software: Apache 2.0 license
 * Documentation: https://lakeapi.readthedocs.io.
 
 

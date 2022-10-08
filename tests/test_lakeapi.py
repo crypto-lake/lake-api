@@ -4,7 +4,7 @@
 
 import pytest # noqa
 
-from lakeapi import lakeapi # noqa
+import lakeapi # noqa
 
 
 def test_empty():

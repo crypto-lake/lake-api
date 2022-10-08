@@ -3,9 +3,10 @@ import datetime
 
 import boto3
 import pandas as pd
-import awswrangler as wr
 from cachetools_ext.fs import FSLRUCache
 from botocache.botocache import botocache_context
+
+import lakeapi.read_parquet
 
 cache = FSLRUCache(ttl=8 * 60 * 60, path="cache/boto", maxsize=1000)
 
@@ -53,7 +54,7 @@ def load_data(
     ):
         s3_session = boto3.Session(region_name="eu-west-1")
         # TODO: log & skip corrupted files
-        df = wr.s3.read_parquet(
+        df = lakeapi.read_parquet.read_parquet(
             path=f"s3://qnt.data/market-data/cryptofeed/{table}",
             partition_filter=partition_filter,
             categories=["side"] if table == "trades" else None,

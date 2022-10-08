@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
    'Click>=7.0', 'pandas>=1.0.5', 'boto3>=1.24', 'cachetools_ext>=0.0.8,<0.1.0', 'botocache>=0.0.4,<0.1.0',
-   'awswrangler@git+ssh://git@github.com/leftys/aws-sdk-pandas#egg=awswrangler',
+   'awswrangler==2.16.1', 'joblib>=1.0.0',
 ]
 
 test_requirements = ['pytest>=3', ]
@@ -24,7 +24,7 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: Apache 2',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
@@ -40,7 +40,7 @@ setup(
         ],
     },
     install_requires=requirements,
-    license="MIT license",
+    license="Apache 2 license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='lakeapi',

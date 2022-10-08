@@ -35,12 +35,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install -r requirements_dev.txt
 
       - name: build documentation
         run: |
-          poetry install -E dev
-          poetry run mkdocs build
+          mkdocs build
 
       - name: publish documentation
         uses: peaceiris/actions-gh-pages@v3
