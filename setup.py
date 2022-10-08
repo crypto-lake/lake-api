@@ -12,8 +12,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
    'Click>=7.0', 'pandas>=1.0.5', 'boto3>=1.24', 'cachetools_ext>=0.0.8,<0.1.0', 'botocache>=0.0.4,<0.1.0',
-   'awswrangler==2.16.1@git+ssh://git@github.com/leftys/aws-sdk-pandas#egg=awswrangler',
-
+   'awswrangler@git+ssh://git@github.com/leftys/aws-sdk-pandas#egg=awswrangler',
 ]
 
 test_requirements = ['pytest>=3', ]
