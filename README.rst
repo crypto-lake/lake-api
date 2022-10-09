@@ -12,6 +12,7 @@ Lake API
         :alt: Documentation status
 
 .. image:: https://github.com/crypto-lake/lake-api/actions/workflows/dev.yml/badge.svg
+     :target: https://github.com/crypto-lake/lake-api/actions/workflows/dev.yml
      :alt: Build status
 
 
