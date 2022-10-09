@@ -13,6 +13,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
    'Click>=7.0', 'pandas>=1.0.5', 'boto3>=1.24', 'cachetools_ext>=0.0.8,<0.1.0', 'botocache>=0.0.4,<0.1.0',
    'awswrangler==2.16.1', 'joblib>=1.0.0',
+   'typing-extensions==4.4.0; python_version < \'3.8\''
 ]
 
 test_requirements = ['pytest>=3', ]
@@ -20,14 +21,14 @@ test_requirements = ['pytest>=3', ]
 setup(
     author="Jan Skoda",
     author_email='skoda@jskoda.cz',
-    python_requires='>=3.8',
+    python_requires='>=3.7',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',

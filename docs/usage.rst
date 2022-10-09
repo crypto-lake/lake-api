@@ -2,7 +2,7 @@
 Usage
 =====
 
-If you don't have a paid plan with AWS credentials, you can access sample data:
+If you don't have a paid plan with AWS credentials, you can access sample data::
 
     lakeapi.use_sample_data(anonymous_access = True)
 
