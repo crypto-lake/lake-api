@@ -19,6 +19,11 @@ def set_default_bucket(bucket: str) -> None:
     default_bucket = bucket
 
 def use_sample_data(anonymous_access: bool) -> None:
+    '''
+    Use sample data lake configuration, which is free for testing Lake.
+
+    :param anonymous_access: Whether to enable anonymous AWS access, that can be used without AWS credentials.
+    '''
     set_default_bucket('sample.crypto.lake')
 
     old_default_config = awswrangler._utils.default_botocore_config
@@ -44,6 +49,13 @@ def load_data(
     row_slice: Optional[slice] = None,
     drop_partition_cols: bool = False,
 ) -> pd.DataFrame:
+    '''
+    Load data from Lake into Pandas DataFrame.
+
+    Fetches data from a range of exchanges/symbols/dates and returns them as a Pandas DataFrame. All network access
+    is cached into a `cache` directory, which is created in the working directory.
+    '''
+    # TODO: document params
     if end is None:
         end = datetime.datetime.now()
     if bucket is None:
