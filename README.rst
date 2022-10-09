@@ -7,7 +7,7 @@ Lake API
         :target: https://pypi.python.org/pypi/lakeapi
         :alt: Pypi package status
 
-.. image:: https://readthedocs.org/projects/lakeapi/badge/?version=latest
+.. image:: https://readthedocs.org/projects/lake-api/badge/?version=latest
         :target: https://lakeapi.readthedocs.io/en/latest/?version=latest
         :alt: Documentation status
 

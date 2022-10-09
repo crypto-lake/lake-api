@@ -20,7 +20,8 @@ from awswrangler._config import apply_configs
 from awswrangler.catalog._get import _get_partitions
 from awswrangler.s3._fs import open_s3_object
 from awswrangler.s3._list import _path2list
-from awswrangler.s3._read import (
+
+from lakeapi._read import (
     _apply_partition_filter,
     _apply_partitions,
     _extract_partitions_dtypes_from_table_details,
@@ -30,8 +31,7 @@ from awswrangler.s3._read import (
     _read_dfs_from_multiple_paths,
     _union,
 )
-
-from lakeapi.cache import cached
+from lakeapi._cache import cached
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
