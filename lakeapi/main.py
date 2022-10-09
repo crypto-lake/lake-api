@@ -2,6 +2,8 @@ from typing import List, Dict, Optional, Literal
 import datetime
 
 import boto3
+import botocore
+import awswrangler._utils
 import pandas as pd
 from cachetools_ext.fs import FSLRUCache
 from botocache.botocache import botocache_context
@@ -16,8 +18,17 @@ def set_default_bucket(bucket: str) -> None:
     global default_bucket
     default_bucket = bucket
 
-def use_sample_data() -> None:
+def use_sample_data(anonymous_access: bool) -> None:
     set_default_bucket('sample.crypto.lake')
+
+    old_default_config = awswrangler._utils.default_botocore_config
+    def _anonymous_access_config() -> None:
+        config = old_default_config()
+        config.signature_version = botocore.UNSIGNED
+        return config
+
+    if anonymous_access:
+        awswrangler._utils.default_botocore_config = _anonymous_access_config
 
 def load_data(
     table: Literal["book", "trades", "candles"],
@@ -27,6 +38,7 @@ def load_data(
     exchanges: Optional[List[str]] = None,
     *,
     bucket: Optional[str] = None,
+    boto3_session: Optional[boto3.Session] = None,
     use_threads: bool = True,
     columns: Optional[List[str]] = None,
     row_slice: Optional[slice] = None,
@@ -36,6 +48,8 @@ def load_data(
         end = datetime.datetime.now()
     if bucket is None:
         bucket = default_bucket
+    if boto3_session is None:
+        boto3_session = boto3.Session(region_name="eu-west-1")
 
     def partition_filter(partition: Dict[str, str]) -> bool:
         return (
@@ -63,14 +77,13 @@ def load_data(
         # This supresses warning messages encountered while caching. Default value is False.
         supress_warning_message=False,
     ):
-        s3_session = boto3.Session(region_name="eu-west-1")
         # TODO: log & skip corrupted files
         df = lakeapi._read_parquet.read_parquet(
             path=f"s3://{bucket}/{table}",
             partition_filter=partition_filter,
             categories=["side"] if table == "trades" else None,
             dataset=True,  # also adds partition columns
-            boto3_session=s3_session,
+            boto3_session=boto3_session,
             columns=columns,
             use_threads=use_threads,
             ignore_index=True,
