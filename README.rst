@@ -5,14 +5,14 @@ Lake API
 
 .. image:: https://img.shields.io/pypi/v/lakeapi.svg
         :target: https://pypi.python.org/pypi/lakeapi
+        :alt: Pypi package status
 
 .. image:: https://readthedocs.org/projects/lakeapi/badge/?version=latest
         :target: https://lakeapi.readthedocs.io/en/latest/?version=latest
-        :alt: Documentation Status
+        :alt: Documentation status
 
-.. image:: https://pyup.io/repos/github/leftys/lakeapi/shield.svg
-     :target: https://pyup.io/repos/github/leftys/lakeapi/
-     :alt: Updates
+.. image:: https://github.com/crypto-lake/lake-api/actions/workflows/dev.yml/badge.svg
+     :alt: Build status
 
 
 
