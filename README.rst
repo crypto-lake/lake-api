@@ -24,3 +24,4 @@ API for accessing Lake crypto market data.
 * Documentation: https://lakeapi.readthedocs.io.
 
 
+.. include:: docs/usage.rst

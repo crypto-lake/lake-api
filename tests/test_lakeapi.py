@@ -1,15 +1,14 @@
 import datetime
 
 import boto3
-import botocore
-import pytest # noqa
+import pytest
 
-import lakeapi # noqa
+import lakeapi
 
 
 @pytest.fixture
 def aws_session():
-    return boto3.Session(region_name="eu-west-1")
+    return boto3.Session(region_name = "eu-west-1")
 
 @pytest.fixture
 def candles(aws_session):
