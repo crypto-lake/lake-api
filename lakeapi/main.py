@@ -9,15 +9,24 @@ from botocache.botocache import botocache_context
 import lakeapi._read_parquet
 
 cache = FSLRUCache(ttl=8 * 60 * 60, path="cache/boto", maxsize=1000)
+default_bucket = 'qnt.data/market-data/cryptofeed'
 
+
+def set_default_bucket(bucket: str) -> None:
+    global default_bucket
+    default_bucket = bucket
+
+def use_sample_data() -> None:
+    set_default_bucket('sample.crypto.lake')
 
 def load_data(
-    table: Literal["book", "trades"],
-    start: Optional[datetime.datetime],
-    end: Optional[datetime.datetime],
-    symbols: Optional[List[str]],
-    exchanges: Optional[List[str]],
+    table: Literal["book", "trades", "candles"],
+    start: Optional[datetime.datetime] = None,
+    end: Optional[datetime.datetime] = None,
+    symbols: Optional[List[str]] = None,
+    exchanges: Optional[List[str]] = None,
     *,
+    bucket: Optional[str] = None,
     use_threads: bool = True,
     columns: Optional[List[str]] = None,
     row_slice: Optional[slice] = None,
@@ -25,6 +34,8 @@ def load_data(
 ) -> pd.DataFrame:
     if end is None:
         end = datetime.datetime.now()
+    if bucket is None:
+        bucket = default_bucket
 
     def partition_filter(partition: Dict[str, str]) -> bool:
         return (
@@ -55,7 +66,7 @@ def load_data(
         s3_session = boto3.Session(region_name="eu-west-1")
         # TODO: log & skip corrupted files
         df = lakeapi._read_parquet.read_parquet(
-            path=f"s3://qnt.data/market-data/cryptofeed/{table}",
+            path=f"s3://{bucket}/{table}",
             partition_filter=partition_filter,
             categories=["side"] if table == "trades" else None,
             dataset=True,  # also adds partition columns
