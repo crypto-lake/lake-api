@@ -11,7 +11,7 @@ bytes_limit: int = 3_000_000_000
 verbose_cache = 0
 
 _store: joblib.Memory = joblib.Memory(
-	Path(__file__).parent.parent / 'cache',
+	'.lake_cache',
 	compress = 2,
 	bytes_limit = bytes_limit,
 	verbose = verbose_cache,

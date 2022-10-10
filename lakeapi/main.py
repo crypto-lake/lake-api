@@ -14,7 +14,7 @@ from botocache.botocache import botocache_context
 
 import lakeapi._read_parquet
 
-cache = FSLRUCache(ttl=8 * 60 * 60, path="cache/boto", maxsize=1000)
+cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=1000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
 
 

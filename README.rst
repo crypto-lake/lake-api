@@ -49,7 +49,7 @@ With paid access, you can query any data:
 
     import lakeapi
 
-    # Downloads SOL-USDT depth snapshots for last 2 days from all Kucoin exchange
+    # Downloads SOL-USDT depth snapshots for last 2 days from Kucoin exchange
     df = lakeapi.load_data(
         table="trades",
         start=datetime.datetime.now() - datetime.timedelta(days=2),
@@ -58,3 +58,5 @@ With paid access, you can query any data:
         exchanges=["KUCOIN"],
     )
 
+We recommend putting .lake_cache directory into .gitignore, because Lake API stores cache into this directory in the
+working directory.
