@@ -48,3 +48,7 @@ jobs:
       - name: Test with pytest
         run: |
           pytest
+
+      - name: Build documentation
+        run: |
+          sphinx-apidoc -o docs/ lakeapi

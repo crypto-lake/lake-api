@@ -19,30 +19,38 @@ jobs:
     name: Publish documentation
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-versions: [3.7]
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-versions }}
+          python-version: 3.10
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
 
-      - name: build documentation
+      - name: Build package
         run: |
-          mkdocs build
+          python setup.py sdist
+          python setup.py bdist_wheel
 
-      - name: publish documentation
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         with:
-          personal_token: ${{ secrets.PERSONAL_TOKEN }}
-          publish_dir: ./site
+          user: __token__
+          password: ${{ secrets.PERSONAL_TOKEN }}
+
+      # - name: build documentation
+      #   run: |
+      #     sphinx-apidoc -o docs/ lakeapi
+
+      # - name: publish documentation
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     personal_token: ${{ secrets.PERSONAL_TOKEN }}
+      #     publish_dir: ./site
