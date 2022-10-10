@@ -11,9 +11,9 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-   'Click>=7.0', 'pandas>=1.0.5', 'boto3>=1.24', 'cachetools_ext>=0.0.8,<0.1.0', 'botocache>=0.0.4,<0.1.0',
+   'Click>=7.0', 'pandas>=1.0.5,<2', 'boto3>=1.24,<2', 'cachetools_ext>=0.0.8,<0.1.0', 'botocache>=0.0.4,<0.1.0',
    'awswrangler==2.16.1', 'joblib>=1.0.0',
-   'typing-extensions==4.4.0; python_version < \'3.8\''
+   'typing-extensions>=4.0,<5; python_version < \'3.8\''
 ]
 
 test_requirements = ['pytest>=3', ]
