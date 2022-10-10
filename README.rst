@@ -19,6 +19,7 @@ Lake API
 API for accessing Lake crypto market data.
 
 
+* Web: https://crypto-lake.com/
 * Documentation: https://lakeapi.readthedocs.io.
 * Online example -- executable collab notebook: https://colab.research.google.com/drive/1E7MSUT8xqYTMVLiq_rMBLNcZmI_KusK3
 
