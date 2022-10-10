@@ -8,7 +8,7 @@ Lake API
         :alt: Pypi package status
 
 .. image:: https://readthedocs.org/projects/lake-api/badge/?version=latest
-        :target: https://lakeapi.readthedocs.io/en/latest/?version=latest
+        :target: https://lake-api.readthedocs.io/en/latest/?version=latest
         :alt: Documentation status
 
 .. image:: https://github.com/crypto-lake/lake-api/actions/workflows/dev.yml/badge.svg
@@ -16,12 +16,11 @@ Lake API
      :alt: Build status
 
 
-
 API for accessing Lake crypto market data.
 
 
-* Free software: Apache 2.0 license
 * Documentation: https://lakeapi.readthedocs.io.
+* Online example -- executable collab notebook: https://colab.research.google.com/drive/1E7MSUT8xqYTMVLiq_rMBLNcZmI_KusK3
 
 
 Usage
@@ -50,7 +49,7 @@ With paid access, you can query any data:
 
     import lakeapi
 
-    # Downloads BTC-USDT depth snapshots for last 2 days from all available exchanges
+    # Downloads SOL-USDT depth snapshots for last 2 days from all Kucoin exchange
     df = lakeapi.load_data(
         table="trades",
         start=datetime.datetime.now() - datetime.timedelta(days=2),

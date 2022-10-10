@@ -17,3 +17,4 @@ cachetools_ext==0.0.8
 botocache==0.0.4
 awswrangler==2.16.1
 joblib==1.2.0
+tqdm==4.64.1
