@@ -7,6 +7,7 @@ import datetime
 
 import boto3
 import botocore
+import botocore.exceptions
 import awswrangler._utils
 import pandas as pd
 from cachetools_ext.fs import FSLRUCache
@@ -93,17 +94,34 @@ def load_data(
         # This supresses warning messages encountered while caching. Default value is False.
         supress_warning_message=False,
     ):
-        # TODO: log & skip corrupted files
-        df = lakeapi._read_parquet.read_parquet(
-            path=f"s3://{bucket}/{table}",
-            partition_filter=partition_filter,
-            categories=["side"] if table == "trades" else None,
-            dataset=True,  # also adds partition columns
-            boto3_session=boto3_session,
-            columns=columns,
-            use_threads=use_threads,
-            ignore_index=True,
-        )
+        last_ex = None
+        for _ in range(2):
+            try:
+                # TODO: log & skip corrupted files
+                df = lakeapi._read_parquet.read_parquet(
+                    path=f"s3://{bucket}/{table}",
+                    partition_filter=partition_filter,
+                    categories=["side"] if table == "trades" else None,
+                    dataset=True,  # also adds partition columns
+                    boto3_session=boto3_session,
+                    columns=columns,
+                    use_threads=use_threads,
+                    ignore_index=True,
+                )
+                break
+            except botocore.exceptions.ClientError as ex:
+                # When 404 file not found error happens, it means the boto cache of available files is wrong and we need
+                # to clear it and try again.
+                if int(ex.response['Error']['Code']) == 404:
+                    # An error occurred (404) when calling the HeadObject operation: Not Found
+                    cache.clear()
+                    last_ex = ex
+                    continue
+                else:
+                    raise
+        else:
+            # got error 404 both before and after the cache.clear()
+            raise last_ex
     if drop_partition_cols:
         # useful when loading just one symbol and exchange
         df.drop(columns=["symbol", "exchange", "dt"], inplace=True)
@@ -131,11 +149,12 @@ if __name__ == "__main__":
     # Test
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = None, exchanges = ['BINANCE']) # noqa
+    use_sample_data(True)
     df = load_data(
         table="book",
-        start=datetime.datetime.now() - datetime.timedelta(days=2),
+        start=None, #datetime.datetime.now() - datetime.timedelta(days=2),
         end=None,
-        symbols=["FRONT-BUSD"],
+        # symbols=["FRONT-BUSD"],
         exchanges=None,
     )
     pd.set_option("display.width", 1000)
