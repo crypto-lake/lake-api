@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 try:
     from typing import Literal
 except ImportError:
@@ -9,6 +9,7 @@ import boto3
 import botocore
 import botocore.exceptions
 import awswrangler._utils
+import awswrangler as wr
 import pandas as pd
 from cachetools_ext.fs import FSLRUCache
 from botocache.botocache import botocache_context
@@ -143,6 +144,94 @@ def load_data(
     if table == "trades":
         df.rename(columns={"id": "trade_id"}, inplace=True)
     return df
+
+def list_data(
+    table: Literal["book", "trades", "candles", None],
+    start: Optional[datetime.datetime] = None,
+    end: Optional[datetime.datetime] = None,
+    symbols: Optional[List[str]] = None,
+    exchanges: Optional[List[str]] = None,
+    *,
+    bucket: Optional[str] = None,
+    boto3_session: Optional[boto3.Session] = None,
+) -> Dict[str, str]:
+    '''
+    Returns list of all data s3 objects matching given conditions.
+
+    Elements describing s3 objects are dicts containing keys table, exchange, symbol, dt, filename.
+    '''
+    if end is None:
+        end = datetime.datetime.now()
+    if bucket is None:
+        bucket = default_bucket
+    if boto3_session is None:
+        boto3_session = boto3.Session(region_name="eu-west-1")
+
+    def partition_filter(partition: Dict[str, str]) -> bool:
+        return (
+            (
+                start is None
+                or start.date() <= datetime.date.fromisoformat(partition["dt"])
+            )
+            and (
+                end is None or end.date() > datetime.date.fromisoformat(partition["dt"])
+            )
+            and (symbols is None or partition["symbol"] in symbols)
+            and (exchanges is None or partition["exchange"] in exchanges)
+        )
+
+    path = f"s3://{bucket}/{table}"
+    with botocache_context(
+        cache=cache,
+        action_regex_to_cache=["List.*"],
+        # This helps in logging all calls made to AWS. Useful while debugging. Default value is False.
+        call_log=True,
+        # This supresses warning messages encountered while caching. Default value is False.
+        supress_warning_message=False,
+    ):
+        paths = lakeapi._read_parquet._path2list(
+            path=path,
+            boto3_session=boto3_session,
+            # suffix=path_suffix,
+            # ignore_suffix=_get_path_ignore_suffix(path_ignore_suffix=path_ignore_suffix),
+            # last_modified_begin=last_modified_begin,
+            # last_modified_end=last_modified_end,
+            # ignore_empty=ignore_empty,
+            s3_additional_kwargs={},
+        )
+        path_root = lakeapi._read_parquet._get_path_root(path=path, dataset=True)
+    paths = lakeapi._read_parquet._apply_partition_filter(path_root=path_root, paths=paths, filter_func=partition_filter)
+    if len(paths) < 1:
+        raise wr.exceptions.NoFilesFound(f"No files Found on: {path}.")
+    return [_path_to_dict(path) for path in paths]
+
+def _path_to_dict(path: str) -> Dict[str, Any]:
+    *_, table, exchange, symbol, dt, filename = path.split('/')
+    return {
+        'table': table,
+        'exchange': exchange.lstrip('exchange='),
+        'symbol': symbol.lstrip('symbol='),
+        'dt': dt.lstrip('dt='),
+        'filename': filename,
+    }
+
+def available_symbols(
+    table: Literal["book", "trades", "candles", None],
+    exchanges: Optional[List[str]] = None,
+    *,
+    bucket: Optional[str] = None,
+    boto3_session: Optional[boto3.Session] = None,
+):
+    '''
+    Return pd.Series containing count of days available for exchange-symbol combinations.
+
+    Contains multi-index of exchange, symbol pairs.
+    '''
+    objects = list_data(table = table, exchanges = exchanges, bucket = bucket, boto3_session = boto3_session)
+    df = pd.DataFrame(objects)
+    counts = df.groupby(['exchange', 'symbol']).filename.count()
+    counts.name = 'days_available'
+    return counts.sort_values(ascending = False)
 
 
 if __name__ == "__main__":
