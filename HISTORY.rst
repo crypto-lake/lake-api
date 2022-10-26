@@ -2,6 +2,26 @@
 History
 =======
 
+0.2.0 (2022-10-26)
+------------------
+
+* New feature for listing available data.
+
+0.1.3 (2022-10-13)
+------------------
+
+* Corrupted cache bugfix
+
+0.1.2 (2022-10-10)
+------------------
+
+* Caching and requirements improvements.
+
+0.1.1 (2022-10-09)
+------------------
+
+* Python2.7 support and documentation improvements.
+
 0.1.0 (2022-10-08)
 ------------------
 
