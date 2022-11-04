@@ -122,5 +122,4 @@ Then run::
 $ bump2version patch # possible: major / minor / patch
 $ git push
 $ git push --tags
-
-Github action will then deploy to PyPI if tests pass.
+$ make release
