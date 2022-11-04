@@ -154,7 +154,9 @@ def list_data(
     *,
     bucket: Optional[str] = None,
     boto3_session: Optional[boto3.Session] = None,
-) -> Dict[str, str]:
+    last_modified_begin: Optional[datetime.datetime] = None,
+    last_modified_end: Optional[datetime.datetime] = None,
+) -> List[Dict[str, str]]:
     '''
     Returns list of all data s3 objects matching given conditions.
 
@@ -194,8 +196,8 @@ def list_data(
             boto3_session=boto3_session,
             # suffix=path_suffix,
             # ignore_suffix=_get_path_ignore_suffix(path_ignore_suffix=path_ignore_suffix),
-            # last_modified_begin=last_modified_begin,
-            # last_modified_end=last_modified_end,
+            last_modified_begin=last_modified_begin,
+            last_modified_end=last_modified_end,
             # ignore_empty=ignore_empty,
             s3_additional_kwargs={},
         )

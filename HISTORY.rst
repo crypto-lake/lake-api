@@ -2,6 +2,13 @@
 History
 =======
 
+0.3.0 (2022-11-04)
+------------------
+
+* Typing bugfix
+* Last modified filters for list_data
+
+
 0.2.0 (2022-10-26)
 ------------------
 
