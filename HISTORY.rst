@@ -2,12 +2,17 @@
 History
 =======
 
+0.4.0 (2022-11-19)
+------------------
+
+* level_1 data added to typing
+* s3 user agent set to lakeapi
+
 0.3.0 (2022-11-04)
 ------------------
 
 * Typing bugfix
 * Last modified filters for list_data
-
 
 0.2.0 (2022-10-26)
 ------------------
