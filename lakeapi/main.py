@@ -42,7 +42,7 @@ def use_sample_data(anonymous_access: bool) -> None:
         awswrangler._utils.default_botocore_config = _anonymous_access_config
 
 def load_data(
-    table: Literal["book", "trades", "candles"],
+    table: Literal["book", "trades", "candles", "level_1"],
     start: Optional[datetime.datetime] = None,
     end: Optional[datetime.datetime] = None,
     symbols: Optional[List[str]] = None,
@@ -146,7 +146,7 @@ def load_data(
     return df
 
 def list_data(
-    table: Literal["book", "trades", "candles", None],
+    table: Literal["book", "trades", "candles", "level_1", None],
     start: Optional[datetime.datetime] = None,
     end: Optional[datetime.datetime] = None,
     symbols: Optional[List[str]] = None,
@@ -218,7 +218,7 @@ def _path_to_dict(path: str) -> Dict[str, Any]:
     }
 
 def available_symbols(
-    table: Literal["book", "trades", "candles", None],
+    table: Literal["book", "trades", "candles", "level_1", None],
     exchanges: Optional[List[str]] = None,
     *,
     bucket: Optional[str] = None,

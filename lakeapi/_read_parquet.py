@@ -15,7 +15,8 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet
 
-from awswrangler import _data_types, _utils, exceptions
+from awswrangler import _data_types, exceptions
+from lakeapi import _utils
 from awswrangler._config import apply_configs
 from awswrangler.catalog._get import _get_partitions
 from awswrangler.s3._fs import open_s3_object

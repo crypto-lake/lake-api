@@ -11,7 +11,7 @@ from pandas.api.types import union_categoricals
 from tqdm.contrib.concurrent import thread_map
 
 from awswrangler import exceptions
-from awswrangler._utils import boto3_to_primitives, ensure_cpu_count
+from lakeapi._utils import boto3_to_primitives, ensure_cpu_count
 from awswrangler.s3._list import _prefix_cleanup
 
 _logger: logging.Logger = logging.getLogger(__name__)
