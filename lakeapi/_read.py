@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
+import modin.pandas
 from pandas.api.types import union_categoricals
 from tqdm.contrib.concurrent import thread_map
 
@@ -120,11 +121,17 @@ def _union(dfs: List[pd.DataFrame], ignore_index: Optional[bool]) -> pd.DataFram
                     ignore_index = True
                     break
     cats: Tuple[Set[str], ...] = tuple(set(df.select_dtypes(include="category").columns) for df in dfs)
+    import time
+    print('union')
+    time.sleep(0.1)
     for col in set.intersection(*cats):
-        cat = union_categoricals([df[col] for df in dfs])
+        # cat = union_categoricals([df[col] for df in dfs])
+        cat = dfs[0][col].dtype
         for df in dfs:
             df[col] = pd.Categorical(df[col].values, categories=cat.categories)
-    return pd.concat(objs=dfs, sort=False, copy=False, ignore_index=ignore_index)
+    print('concat')
+    time.sleep(0.1)
+    return modin.pandas.concat(objs=dfs, sort=False, copy=False, ignore_index=ignore_index)
 
 
 def _read_dfs_from_multiple_paths(

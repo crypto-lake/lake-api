@@ -12,6 +12,7 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tupl
 
 import boto3
 import pandas as pd
+import modin.pandas
 import pyarrow as pa
 import pyarrow.parquet
 
@@ -566,7 +567,13 @@ def _read_parquet_nocache(
             if column not in df.columns:
                 raise exceptions.InvalidArgument(f"column: {column} does not exist")
     return df
-_read_parquet = cached(_read_parquet_nocache, ignore = ['boto3_session'])
+
+
+_read_parquet_cached = cached(_read_parquet_nocache, ignore = ['boto3_session'])
+
+
+def _read_parquet(*args, **kwargs):
+    return modin.pandas.DataFrame(_read_parquet_cached(*args, **kwargs))
 
 
 def read_parquet(
@@ -784,11 +791,11 @@ def read_parquet(
             **args,
         )
     if len(paths) == 1:
-        return _read_parquet(
+        return modin.pandas.DataFrame(_read_parquet(
             path=paths[0],
             version_id=versions[paths[0]] if isinstance(versions, dict) else None,
             **args,
-        )
+        ))
     if validate_schema is True:
         _validate_schemas_from_files(
             paths=paths,
