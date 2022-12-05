@@ -18,6 +18,7 @@ import lakeapi._read_parquet
 
 cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=1000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
+is_anonymous_access = False
 
 
 def set_default_bucket(bucket: str) -> None:
@@ -30,6 +31,7 @@ def use_sample_data(anonymous_access: bool) -> None:
 
     :param anonymous_access: Whether to enable anonymous AWS access, that can be used without AWS credentials.
     '''
+    global is_anonymous_access
     set_default_bucket('sample.crypto.lake')
 
     old_default_config = awswrangler._utils.default_botocore_config
@@ -39,6 +41,7 @@ def use_sample_data(anonymous_access: bool) -> None:
         return config
 
     if anonymous_access:
+        is_anonymous_access = True
         awswrangler._utils.default_botocore_config = _anonymous_access_config
 
 def load_data(
@@ -92,8 +95,8 @@ def load_data(
         action_regex_to_cache=["List.*"],
         # This helps in logging all calls made to AWS. Useful while debugging. Default value is False.
         call_log=True,
-        # This supresses warning messages encountered while caching. Default value is False.
-        supress_warning_message=False,
+        # This supresses warning messages encountered while caching in anonymous mode
+        supress_warning_message=is_anonymous_access,
     ):
         last_ex = None
         for _ in range(2):
