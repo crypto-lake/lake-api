@@ -103,7 +103,7 @@ def load_data(
             try:
                 # TODO: log & skip corrupted files
                 df = lakeapi._read_parquet.read_parquet(
-                    path=f"s3://{bucket}/{table}",
+                    path=f"s3://{bucket}/{table}/",
                     partition_filter=partition_filter,
                     categories=["side"] if table == "trades" else None,
                     dataset=True,  # also adds partition columns
@@ -185,7 +185,7 @@ def list_data(
             and (exchanges is None or partition["exchange"] in exchanges)
         )
 
-    path = f"s3://{bucket}/{table}"
+    path = f"s3://{bucket}/{table}/"
     with botocache_context(
         cache=cache,
         action_regex_to_cache=["List.*"],
