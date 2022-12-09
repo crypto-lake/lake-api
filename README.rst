@@ -18,9 +18,11 @@ Lake API
 
 API for accessing Lake crypto market data.
 
+Lake is a service providing historical cryptocurrency market data in high detail, including `order book data <https://crypto-lake.com/order-book-data/>`_, tick trades and 1m trade candles. It is tuned for convenient quant and machine-learning purposes and so offers high performance, caching and parallelization.
+
 
 * Web: https://crypto-lake.com/
-* Documentation: https://lakeapi.readthedocs.io.
+* Documentation: https://lake-api.readthedocs.io.
 * Online example -- executable collab notebook: https://colab.research.google.com/drive/1E7MSUT8xqYTMVLiq_rMBLNcZmI_KusK3
 
 
@@ -40,7 +42,7 @@ If you don't have a paid plan with AWS credentials, you can access sample data:
         start=None,
         end=None,
         symbols=["BTC-USDT"],
-        exchanges=None,
+        exchanges=["BINANCE"],
     )
 
 

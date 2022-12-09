@@ -48,7 +48,7 @@ setup(
     packages=find_packages(include=['lakeapi', 'lakeapi.*']),
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/leftys/lakeapi',
+    url='https://github.com/crypto-lake/lakeapi',
     version='0.4.2',
     zip_safe=False,
 )

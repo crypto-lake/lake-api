@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/leftys/lakeapi
+    $ git clone git://github.com/crypto-lake/lakeapi
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/leftys/lakeapi/tarball/master
+    $ curl -OJL https://github.com/crypto-lake/lakeapi/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/leftys/lakeapi
-.. _tarball: https://github.com/leftys/lakeapi/tarball/master
+.. _Github repo: https://github.com/crypto-lake/lakeapi
+.. _tarball: https://github.com/crypto-lake/lakeapi/tarball/master
