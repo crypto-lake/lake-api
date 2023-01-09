@@ -2,7 +2,7 @@
 History
 =======
 
-0.4.4 (2023-01-09)
+0.4.5 (2023-01-09)
 ------------------
 
 * grow default cache size limit from 3 GB to 10 GB
