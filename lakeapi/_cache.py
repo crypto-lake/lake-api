@@ -7,7 +7,7 @@ from typing import Any, Callable
 import joblib
 from pathlib import Path
 
-bytes_limit: int = 3_000_000_000
+bytes_limit: int = 10_000_000_000
 verbose_cache = 0
 
 _store: joblib.Memory = joblib.Memory(
