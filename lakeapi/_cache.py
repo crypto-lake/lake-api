@@ -12,9 +12,10 @@ verbose_cache = 0
 
 _store: joblib.Memory = joblib.Memory(
 	'.lake_cache',
-	compress = 2,
+	compress = 0,
 	bytes_limit = bytes_limit,
 	verbose = verbose_cache,
+	mmap_mode = 'c',
 )
 cached: Callable[..., Callable[..., Any]] = _store.cache
 _store.reduce_size()
