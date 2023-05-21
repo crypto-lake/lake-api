@@ -16,6 +16,8 @@ from botocache.botocache import botocache_context
 
 import lakeapi._read_parquet
 
+DataType = Literal["book", "trades", "candles", "level_1", "funding", "open_interest", "liquiditions"]
+
 cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=1000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
 is_anonymous_access = False
@@ -45,7 +47,7 @@ def use_sample_data(anonymous_access: bool) -> None:
         awswrangler._utils.default_botocore_config = _anonymous_access_config
 
 def load_data(
-    table: Literal["book", "trades", "candles", "level_1"],
+    table: DataType,
     start: Optional[datetime.datetime] = None,
     end: Optional[datetime.datetime] = None,
     symbols: Optional[List[str]] = None,
@@ -144,12 +146,14 @@ def load_data(
     if "timestamp" in df.columns:
         df.rename(columns={"timestamp": "origin_time"}, inplace=True)
         df["origin_time"] = pd.to_datetime(df["origin_time"], unit="ns", cache=True)
+    if "next_funding_time" in df.columns:
+        df["next_funding_time"] = pd.to_datetime(df["next_funding_time"], unit="s", cache=True)
     if table == "trades":
         df.rename(columns={"id": "trade_id"}, inplace=True)
     return df
 
 def list_data(
-    table: Literal["book", "trades", "candles", "level_1", None],
+    table: Optional[DataType],
     start: Optional[datetime.datetime] = None,
     end: Optional[datetime.datetime] = None,
     symbols: Optional[List[str]] = None,
@@ -221,7 +225,7 @@ def _path_to_dict(path: str) -> Dict[str, Any]:
     }
 
 def available_symbols(
-    table: Literal["book", "trades", "candles", "level_1", None],
+    table: Optional[DataType],
     exchanges: Optional[List[str]] = None,
     *,
     bucket: Optional[str] = None,

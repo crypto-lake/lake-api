@@ -2,6 +2,12 @@
 History
 =======
 
+0.5.0 (2023-05-21)
+------------------
+
+* support for funding, open_interest and liquidations list_data
+* improve data type typing
+
 0.4.5 (2023-01-09)
 ------------------
 
