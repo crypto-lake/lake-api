@@ -740,9 +740,11 @@ def read_parquet(
 
     """
     session: boto3.Session = _utils.ensure_session(session=boto3_session)
+    # s3_client = _utils.client(service_name="s3", session=session)
     paths: List[str] = _path2list(
         path=path,
         boto3_session=session,
+        # s3_client=s3_client,
         suffix=path_suffix,
         ignore_suffix=_get_path_ignore_suffix(path_ignore_suffix=path_ignore_suffix),
         last_modified_begin=last_modified_begin,

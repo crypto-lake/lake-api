@@ -16,7 +16,7 @@ from botocache.botocache import botocache_context
 
 import lakeapi._read_parquet
 
-DataType = Literal["book", "trades", "candles", "level_1", "funding", "open_interest", "liquiditions"]
+DataType = Literal["book", "book_delta", "trades", "trades_mpid", "candles", "level_1", "funding", "open_interest", "liquiditions"]
 
 cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=1000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
