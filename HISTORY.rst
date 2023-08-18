@@ -2,6 +2,11 @@
 History
 =======
 
+0.6.2 (2023-08-18)
+------------------
+
+* fix dependency constraints causing _path2list bug
+
 0.6.1 (2023-08-15)
 ------------------
 
