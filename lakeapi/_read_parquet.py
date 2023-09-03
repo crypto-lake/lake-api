@@ -53,10 +53,10 @@ def _pyarrow_parquet_file_wrapper(
             raise
     except pyarrow.ArrowInvalid as ex:
         if str(ex) == "Parquet file size is 0 bytes":
-            _logger.warning("Ignoring empty file = {}", path)
+            _logger.warning("Ignoring empty file = %s", path)
             return None
         if str(ex) == "Parquet magic bytes not found in footer. Either the file is corrupted or this is not a parquet file.":
-            _logger.warning("Ignoring corrupted file = {}", path)
+            _logger.warning("Ignoring corrupted file = %s", path)
             return None
         raise
 
