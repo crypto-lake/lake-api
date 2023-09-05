@@ -15,7 +15,6 @@ _store: joblib.Memory = joblib.Memory(
 	compress = 0,
 	bytes_limit = bytes_limit,
 	verbose = verbose_cache,
-	mmap_mode = 'c',
 )
 cached: Callable[..., Callable[..., Any]] = _store.cache
 _store.reduce_size()

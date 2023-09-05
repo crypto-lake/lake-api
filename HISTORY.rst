@@ -2,16 +2,20 @@
 History
 =======
 
+0.6.4 (2023-08-05)
+------------------
+
+* too many open files bugfix
+
 0.6.3 (2023-08-03)
 ------------------
 
 * logging fixes
-* too many open files bugfix
 
 0.6.2 (2023-08-18)
 ------------------
 
-* fix dependency constraints causing _path2list bug
+* fix dependency constraints causing `TypeError: _path2list() got an unexpected keyword argument 'boto3_session'`
 
 0.6.1 (2023-08-15)
 ------------------
