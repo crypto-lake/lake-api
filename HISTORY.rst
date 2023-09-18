@@ -2,6 +2,11 @@
 History
 =======
 
+0.7.0 (2023-09-18)
+------------------
+
+* let user specify max cache size via `lakeapi.set_cache_size_limit()`
+
 0.6.4 (2023-08-05)
 ------------------
 

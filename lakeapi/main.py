@@ -15,10 +15,11 @@ from cachetools_ext.fs import FSLRUCache
 from botocache.botocache import botocache_context
 
 import lakeapi._read_parquet
+import lakeapi._cache
 
 DataType = Literal["book", "book_delta", "trades", "trades_mpid", "candles", "level_1", "funding", "open_interest", "liquiditions"]
 
-cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=1000)
+cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=10_000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
 is_anonymous_access = False
 
@@ -26,6 +27,14 @@ is_anonymous_access = False
 def set_default_bucket(bucket: str) -> None:
     global default_bucket
     default_bucket = bucket
+
+def set_cache_size_limit(limit_bytes: int) -> None:
+    '''
+    Set cache size limit in bytes.
+
+    :param limit_bytes: Cache size limit in bytes.
+    '''
+    lakeapi._cache._store.bytes_limit = limit_bytes
 
 def use_sample_data(anonymous_access: bool) -> None:
     '''
@@ -150,6 +159,8 @@ def load_data(
         df["next_funding_time"] = pd.to_datetime(df["next_funding_time"], unit="s", cache=True)
     if table == "trades":
         df.rename(columns={"id": "trade_id"}, inplace=True)
+
+    lakeapi._cache._store.reduce_size()
     return df
 
 def list_data(
@@ -252,7 +263,7 @@ if __name__ == "__main__":
         table="book",
         start=None, #datetime.datetime.now() - datetime.timedelta(days=2),
         end=None,
-        # symbols=["FRONT-BUSD"],
+        symbols=["FTRB-USDT"],
         exchanges=None,
     )
     pd.set_option("display.width", 1000)
