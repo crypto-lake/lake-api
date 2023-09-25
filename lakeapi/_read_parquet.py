@@ -492,7 +492,7 @@ def _read_parquet_file(
                 path = path,
             )
             if pq_file is None:
-                raise exceptions.InvalidFile(f"Invalid Parquet file: {path}")
+                return pa.Table.from_arrays(arrays=[], names=[])
             return pq_file.read(columns=columns, use_threads=False, use_pandas_metadata=False)
     except pyarrow.lib.ArrowInvalid:
         raise pyarrow.lib.ArrowInvalid(path)
@@ -760,7 +760,7 @@ def read_parquet(
     if path_root is not None and partition_filter is not None:
         paths = _apply_partition_filter(path_root=path_root, paths=paths, filter_func=partition_filter)
     if len(paths) < 1:
-        raise exceptions.NoFilesFound(f"No files Found on: {path}.")
+        raise exceptions.NoFilesFound("No data found for your query")
     _logger.debug("paths:\n%s", paths)
 
     args: Dict[str, Any] = {

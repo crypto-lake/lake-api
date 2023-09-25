@@ -2,6 +2,13 @@
 History
 =======
 
+0.8.0 (2023-09-18)
+------------------
+
+* grow default cache size limit
+* nicer error messages when data are missing
+* pass and print warning when file is corrupted
+
 0.7.0 (2023-09-18)
 ------------------
 

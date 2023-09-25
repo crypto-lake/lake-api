@@ -1,12 +1,10 @@
 '''
 Cache downloaded data
-
-You can adjust module-level `bytes_limit`, but only before you use the cache.
 '''
 from typing import Any, Callable
 import joblib
 
-default_bytes_limit: int = 10_000_000_000
+default_bytes_limit: int = 1_000_000_000_000
 verbose_cache = 0
 
 _store: joblib.Memory = joblib.Memory(

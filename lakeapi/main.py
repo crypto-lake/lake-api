@@ -134,6 +134,11 @@ def load_data(
                     continue
                 else:
                     raise
+            except awswrangler.exceptions.NoFilesFound:
+                if is_anonymous_access:
+                    raise awswrangler.exceptions.NoFilesFound("No data found for your query in the free sample dataset. Please subscribe to access more data.")
+                else:
+                    raise
         else:
             # got error 404 both before and after the cache.clear()
             raise last_ex
