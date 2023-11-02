@@ -22,6 +22,7 @@ DataType = Literal["book", "book_delta", "trades", "trades_mpid", "candles", "le
 cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=10_000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
 is_anonymous_access = False
+_old_default_config = None
 
 
 def set_default_bucket(bucket: str) -> None:
@@ -42,18 +43,23 @@ def use_sample_data(anonymous_access: bool) -> None:
 
     :param anonymous_access: Whether to enable anonymous AWS access, that can be used without AWS credentials.
     '''
-    global is_anonymous_access
+    global is_anonymous_access, _old_default_config
     set_default_bucket('sample.crypto.lake')
 
-    old_default_config = awswrangler._utils.default_botocore_config
+    if _old_default_config is None:
+        _old_default_config = awswrangler._utils.default_botocore_config
     def _anonymous_access_config() -> None:
-        config = old_default_config()
+        config = _old_default_config()
         config.signature_version = botocore.UNSIGNED
         return config
 
     if anonymous_access:
         is_anonymous_access = True
         awswrangler._utils.default_botocore_config = _anonymous_access_config
+    else:
+        is_anonymous_access = False
+        awswrangler._utils.default_botocore_config = _old_default_config
+
 
 def load_data(
     table: DataType,
