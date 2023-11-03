@@ -10,17 +10,10 @@ import pandas as pd
 from pandas.api.types import union_categoricals
 from tqdm.contrib.concurrent import thread_map
 
-from awswrangler import exceptions
+from lakeapi import exceptions
 from lakeapi._utils import boto3_to_primitives, ensure_cpu_count
-from awswrangler.s3._list import _prefix_cleanup
 
 _logger: logging.Logger = logging.getLogger(__name__)
-
-
-def _get_path_root(path: Union[str, List[str]], dataset: bool) -> Optional[str]:
-    if (dataset is True) and (not isinstance(path, str)):
-        raise exceptions.InvalidArgument("The path argument must be a string if dataset=True (Amazon S3 prefix).")
-    return _prefix_cleanup(str(path)) if dataset is True else None
 
 
 def _get_path_ignore_suffix(path_ignore_suffix: Union[str, List[str], None]) -> Union[List[str], None]:

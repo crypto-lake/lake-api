@@ -15,9 +15,8 @@ import botocore.config
 import numpy as np
 import pandas as pd
 
-from awswrangler import _config, exceptions
-from lakeapi import __version__
-from awswrangler._config import apply_configs
+from lakeapi import __version__, exceptions, _config
+from lakeapi._config import apply_configs
 
 _logger: logging.Logger = logging.getLogger(__name__)
 

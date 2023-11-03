@@ -8,16 +8,19 @@ import datetime
 import boto3
 import botocore
 import botocore.exceptions
-import awswrangler._utils
-import awswrangler as wr
 import pandas as pd
 from cachetools_ext.fs import FSLRUCache
 from botocache.botocache import botocache_context
 
 import lakeapi._read_parquet
 import lakeapi._cache
+import lakeapi._utils
+import lakeapi.exceptions
 
-DataType = Literal["book", "book_delta", "trades", "trades_mpid", "candles", "level_1", "funding", "open_interest", "liquiditions"]
+DataType = Literal[
+    "book", "book_delta", "trades", "trades_mpid", "candles", "level_1", "funding", "open_interest", "liquiditions",
+    "book_1m"
+]
 
 cache = FSLRUCache(ttl=8 * 60 * 60, path=".lake_cache/boto", maxsize=10_000)
 default_bucket = 'qnt.data/market-data/cryptofeed'
@@ -47,7 +50,7 @@ def use_sample_data(anonymous_access: bool) -> None:
     set_default_bucket('sample.crypto.lake')
 
     if _old_default_config is None:
-        _old_default_config = awswrangler._utils.default_botocore_config
+        _old_default_config = lakeapi._utils.default_botocore_config
     def _anonymous_access_config() -> None:
         config = _old_default_config()
         config.signature_version = botocore.UNSIGNED
@@ -55,10 +58,10 @@ def use_sample_data(anonymous_access: bool) -> None:
 
     if anonymous_access:
         is_anonymous_access = True
-        awswrangler._utils.default_botocore_config = _anonymous_access_config
+        lakeapi._utils.default_botocore_config = _anonymous_access_config
     else:
         is_anonymous_access = False
-        awswrangler._utils.default_botocore_config = _old_default_config
+        lakeapi._utils.default_botocore_config = _old_default_config
 
 
 def load_data(
@@ -140,9 +143,9 @@ def load_data(
                     continue
                 else:
                     raise
-            except awswrangler.exceptions.NoFilesFound:
+            except lakeapi.exceptions.NoFilesFound:
                 if is_anonymous_access:
-                    raise awswrangler.exceptions.NoFilesFound("No data found for your query in the free sample dataset. Please subscribe to access more data.")
+                    raise lakeapi.exceptions.NoFilesFound("No data found for your query in the free sample dataset. Please subscribe to access more data.")
                 else:
                     raise
         else:
@@ -233,7 +236,7 @@ def list_data(
         path_root = lakeapi._read_parquet._get_path_root(path=path, dataset=True)
     paths = lakeapi._read_parquet._apply_partition_filter(path_root=path_root, paths=paths, filter_func=partition_filter)
     if len(paths) < 1:
-        raise wr.exceptions.NoFilesFound(f"No files Found on: {path}.")
+        raise lakeapi.exceptions.NoFilesFound(f"No files Found on: {path}.")
     return [_path_to_dict(path) for path in paths]
 
 def _path_to_dict(path: str) -> Dict[str, Any]:

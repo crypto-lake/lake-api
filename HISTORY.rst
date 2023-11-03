@@ -2,6 +2,12 @@
 History
 =======
 
+0.9.0 (2023-11-03)
+------------------
+
+* awswrangler dependency removed, pandas 2 support added
+* python3.12 support
+
 0.8.0 (2023-09-18)
 ------------------
 
