@@ -101,6 +101,7 @@ def load_data(
     if boto3_session is None:
         boto3_session = boto3.Session(region_name="eu-west-1")
     username, method = _login(boto3_session, table)
+    # print(username, method)
     if method == 'upgrade':
         warnings.warn('This lakeapi version is outdated and might misbehave. Please upgrade lakeapi to the latest version eg. using command `pip install -U lakeapi`!')
     if method == 'forceupgrade':
@@ -205,10 +206,10 @@ def _login(boto3_session: boto3.Session, table: str) -> Tuple[str, str]:
     lambda_client = boto3_session.client('lambda')
     try:
         response = lambda_client.invoke(
-            FunctionName='lake-backend-dev',
+            FunctionName='lake-login-login',
             InvocationType='RequestResponse',
             Payload=json.dumps({
-                'command': 'app.login',
+                'command': 'login.login',
                 'api_key': boto3_session.get_credentials().access_key,
                 'table': table,
                 'anonymous_access': is_anonymous_access,
@@ -416,10 +417,11 @@ def available_symbols(
 
 
 if __name__ == "__main__":
+    # session = boto3.Session(profile_name='', region_name="eu-west-1")
     # Test
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = None, exchanges = ['BINANCE']) # noqa
-    df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) # noqa
+    df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) #, boto3_session=session) # noqa
     # df = load_data(table = 'book', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = ['KUCOIN']) # noqa
     # df = _load_data_cloudfront(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) # noqa
     # df = load_data(
