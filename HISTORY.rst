@@ -2,7 +2,7 @@
 History
 =======
 
-0.10.1 (2023-11-06)
+0.11.1 (2023-11-06)
 -------------------
 
 * minor optimizations and fixes in cloudfront transfer
