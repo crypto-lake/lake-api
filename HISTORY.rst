@@ -2,6 +2,11 @@
 History
 =======
 
+0.10.0 (2023-11-06)
+------------------
+
+* more efficient optional data transfer implemented via aws cloudfront
+
 0.9.1 (2023-11-03)
 ------------------
 
