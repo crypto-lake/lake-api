@@ -303,7 +303,8 @@ def _download_cloudfront(session: boto3.Session, username: str, all_symbols: Lis
         aws_service='s3'
     )
     df = _download_cached(auth, url, username)
-    df['side'] = pd.Series(df['side'], index=df.index, dtype=pd.CategoricalDtype(categories = ['buy', 'sell']))
+    if 'side' in df.columns:
+        df['side'] = pd.Series(df['side'], index=df.index, dtype=pd.CategoricalDtype(categories = ['buy', 'sell']))
     df['symbol'] = pd.Series(symbol, index=df.index, dtype=pd.CategoricalDtype(categories = all_symbols))
     df['exchange'] = pd.Series(exchange, index=df.index, dtype=pd.CategoricalDtype(categories = all_exchanges))
     df['dt'] = 0 # this will be deleted anyway
@@ -421,8 +422,8 @@ if __name__ == "__main__":
     # Test
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = None, exchanges = ['BINANCE']) # noqa
-    df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) #, boto3_session=session) # noqa
-    # df = load_data(table = 'book', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = ['KUCOIN']) # noqa
+    # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) #, boto3_session=session) # noqa
+    df = load_data(table = 'book', start = datetime.datetime.now() - datetime.timedelta(days = 1), end = None, symbols = ['XCAD-USDT'], exchanges = ['KUCOIN']) # noqa
     # df = _load_data_cloudfront(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) # noqa
     # df = load_data(
     #     table="book",
