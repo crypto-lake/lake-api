@@ -20,6 +20,8 @@ from botocache.botocache import botocache_context
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 import tqdm.contrib.concurrent
 import cachetools
+import joblib.memory
+import pyarrow
 
 import lakeapi._read_parquet
 import lakeapi._cache
@@ -86,14 +88,27 @@ def load_data(
     columns: Optional[List[str]] = None,
     row_slice: Optional[slice] = None,
     drop_partition_cols: bool = False,
+    cached: bool = True
 ) -> pd.DataFrame:
     '''
     Load data from Lake into Pandas DataFrame.
 
     Fetches data from a range of exchanges/symbols/dates and returns them as a Pandas DataFrame. All network access
-    is cached into a `cache` directory, which is created in the working directory.
+    can be cached into a `.lake_cache` directory, which is created in the working directory.
+
+    :param table: Data type to load. Eg. book (2x20 level order book snapshots ), trades, candles, level_1, funding, open_interest and more
+    :param start: Start datetime of data to load. If None, loads all data until `end`. Will be rounded to midnight.
+    :param end: End datetime of data to load. If None, loads all data from `start`. Will be rounded to midnight.
+    :param symbols: List of symbols to load. If None, loads all symbols available. Eg. ['BTC-USDT', 'ETH-USDT']
+    :param exchanges: List of exchanges to load. If None, loads all exchanges available. Eg. ['BINANCE', 'BINANCE_FUTURES', KUCOIN']
+    :param bucket: S3 bucket to load data from. Reserved for internal usage.
+    :param boto3_session: Boto3 session to use for loading data. Usually left None = create a new session.
+    :param use_threads: Whether to use multiple threads for loading data for better performance.
+    :param columns: List of columns to load. If None, loads all columns available.
+    :param row_slice: DEPRECATED
+    :param drop_partition_cols: Whether to drop columns (dt, symbol and exchange) from the DataFrame. Useful when loading just one symbol and exchange.
+    :param cached: Whether to use file system cache for data download. However, always uses cache for file listing.
     '''
-    # TODO: document params
     if end is None:
         end = datetime.datetime.now()
     if bucket is None:
@@ -128,7 +143,7 @@ def load_data(
     if method == 'cloudfront':
         df = _load_data_cloudfront(
             table = table, start = start, end = end, symbols = symbols, exchanges = exchanges,
-            boto3_session = boto3_session, use_threads = use_threads, username = username
+            boto3_session = boto3_session, use_threads = use_threads, username = username, cached = cached,
         )
     else:
         with botocache_context(
@@ -152,6 +167,7 @@ def load_data(
                         columns=columns,
                         use_threads=use_threads,
                         ignore_index=True,
+                        cached=cached,
                     )
                     break
                 except botocore.exceptions.ClientError as ex:
@@ -235,6 +251,7 @@ def _load_data_cloudfront(
     boto3_session: Optional[boto3.Session] = None,
     use_threads: bool = True,
     username: str = 'unknown',
+    cached: bool = True,
     # drop_partition_cols: bool = False,
 ) -> pd.DataFrame:
     if boto3_session is None:
@@ -285,14 +302,14 @@ def _load_data_cloudfront(
         workers = 1
 
     dfs = list(tqdm.contrib.concurrent.thread_map(
-        functools.partial(_download_cloudfront, boto3_session, username, symbols, exchanges),
+        functools.partial(_download_cloudfront, boto3_session, username, symbols, exchanges, cached),
         objs,
         max_workers=workers
     ))
     return pd.concat([df for df in dfs if not df.empty], ignore_index=True)
 
 
-def _download_cloudfront(session: boto3.Session, username: str, all_symbols: List[str], all_exchanges: List[str], obj) -> pd.DataFrame:
+def _download_cloudfront(session: boto3.Session, username: str, all_symbols: List[str], all_exchanges: List[str], cached: bool, obj) -> pd.DataFrame:
     url, symbol, exchange, dt = obj
     credentials = session.get_credentials().get_frozen_credentials()
     auth = AWSRequestsAuth(
@@ -302,7 +319,15 @@ def _download_cloudfront(session: boto3.Session, username: str, all_symbols: Lis
         aws_region='eu-west-1',
         aws_service='s3'
     )
-    df = _download_cached(auth, url, username)
+    if cached:
+        with warnings.catch_warnings():
+            # Ignore joblib warnings for:
+            # - duplicate function _download_cached. This is caused by ipython according to github
+            # - slow persist arguments. No idea why this sometimes happens, but we pass no big arguments.
+            warnings.simplefilter("ignore", UserWarning)
+            df = _download_cached(auth, url, username)
+    else:
+        df = _download_one(auth, url, username)
     if 'side' in df.columns:
         df['side'] = pd.Series(df['side'], index=df.index, dtype=pd.CategoricalDtype(categories = ['buy', 'sell']))
     df['symbol'] = pd.Series(symbol, index=df.index, dtype=pd.CategoricalDtype(categories = all_symbols))
@@ -310,8 +335,7 @@ def _download_cloudfront(session: boto3.Session, username: str, all_symbols: Lis
     df['dt'] = 0 # this will be deleted anyway
     return df
 
-@lakeapi._cache.cached(ignore = ['auth', 'username'])
-def _download_cached(auth, url: str, username: str) -> pd.DataFrame:
+def _download_one(auth, url: str, username: str) -> pd.DataFrame:
     # Use stream to be able to process response.raw into parquet faster
     # response = requests.get(url, auth = auth, headers = {'Referer': username, 'User-Agent': f'lakeapi/{lakeapi.__version__}'}, stream = True)
     # return pd.read_parquet(lakeapi.response_stream.ResponseStream(response.iter_content(chunk_size=1_000_000)), engine='pyarrow')
@@ -323,8 +347,12 @@ def _download_cached(auth, url: str, username: str) -> pd.DataFrame:
     elif response.status_code != 200:
         print('Warning: Unexpected status code', response.status_code, 'for', url)
 
-    return pd.read_parquet(io.BytesIO(response.content), engine='pyarrow')
-
+    try:
+        return pd.read_parquet(io.BytesIO(response.content), engine='pyarrow')
+    except pyarrow.lib.ArrowInvalid:
+        print("No data available for =", url)
+        return pd.DataFrame()
+_download_cached = lakeapi._cache.cached(_download_one, ignore = ['auth', 'username'])
 
 def list_data(
     table: Optional[DataType],
@@ -420,10 +448,10 @@ def available_symbols(
 if __name__ == "__main__":
     # session = boto3.Session(profile_name='', region_name="eu-west-1")
     # Test
-    # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
+    df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = None, exchanges = ['BINANCE']) # noqa
-    # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) #, boto3_session=session) # noqa
-    df = load_data(table = 'book', start = datetime.datetime.now() - datetime.timedelta(days = 1), end = None, symbols = ['XCAD-USDT'], exchanges = ['KUCOIN']) # noqa
+    # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 4), end = None, symbols = ['TEST-USDT'], exchanges = None) #, boto3_session=session) # noqa
+    # df = load_data(table = 'book', start = datetime.datetime.now() - datetime.timedelta(days = 1), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = _load_data_cloudfront(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) # noqa
     # df = load_data(
     #     table="book",

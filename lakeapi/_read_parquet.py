@@ -59,10 +59,10 @@ def _pyarrow_parquet_file_wrapper(
             raise
     except pyarrow.ArrowInvalid as ex:
         if str(ex) == "Parquet file size is 0 bytes":
-            _logger.warning("Ignoring empty file = %s", path)
+            _logger.warning("No data available for = %s", path)
             return None
         if str(ex) == "Parquet magic bytes not found in footer. Either the file is corrupted or this is not a parquet file.":
-            _logger.warning("Ignoring corrupted file = %s", path)
+            _logger.warning("No data available for = %s", path)
             return None
         raise
 
@@ -383,7 +383,7 @@ def _read_parquet_nocache(
         timestamp_as_object=pyarrow_args["timestamp_as_object"],
     )
     return df
-_read_parquet = cached(_read_parquet_nocache, ignore = ['boto3_session'])
+_read_parquet = cached(_read_parquet_nocache, ignore = ['boto3_session', 's3_additional_kwargs', 'pyarrow_additional_kwargs'])
 
 
 def read_parquet(
@@ -407,6 +407,7 @@ def read_parquet(
     boto3_session: Optional[boto3.Session] = None,
     s3_additional_kwargs: Optional[Dict[str, Any]] = None,
     pyarrow_additional_kwargs: Optional[Dict[str, Any]] = None,
+    cached: bool = True,
 ) -> Union[pd.DataFrame, Iterator[pd.DataFrame]]:
     """Read Apache Parquet file(s) from a received S3 prefix or list of S3 objects paths.
 
@@ -588,6 +589,10 @@ def read_parquet(
         "pyarrow_additional_kwargs": pyarrow_additional_kwargs,
     }
     _logger.debug("args:\n%s", pprint.pformat(args))
+    if cached:
+        read_func = _read_parquet
+    else:
+        read_func = _read_parquet_nocache
     if chunked is not False:
         return _read_parquet_chunked(
             paths=paths,
@@ -597,14 +602,14 @@ def read_parquet(
             **args,
         )
     if len(paths) == 1:
-        return _read_parquet(
+        return read_func(
             path=paths[0],
             version_id=versions[paths[0]] if isinstance(versions, dict) else None,
             **args,
         )
     return _union(
         dfs=_read_dfs_from_multiple_paths(
-            read_func=_read_parquet,
+            read_func=read_func,
             paths=paths,
             version_ids=versions,
             use_threads=use_threads,

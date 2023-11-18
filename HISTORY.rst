@@ -2,6 +2,12 @@
 History
 =======
 
+0.12.0 (2023-11-18)
+-------------------
+
+* option to disable cache
+* improved warnings handling
+
 0.11.2 (2023-11-09)
 -------------------
 
