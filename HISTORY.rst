@@ -2,6 +2,13 @@
 History
 =======
 
+
+0.12.1 (2023-11-22)
+-------------------
+
+* fix issue !6 with lowercase symbol names
+* better error when aws clients use free data sample (!7)
+
 0.12.0 (2023-11-18)
 -------------------
 

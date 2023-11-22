@@ -136,7 +136,7 @@ def load_data(
         )
 
     if symbols:
-        assert symbols[0].upper() == symbols[0]
+        assert symbols[0].upper() == symbols[0] or symbols[0][5:].upper() == symbols[0][5:]
     if exchanges:
         assert exchanges[0].upper() == exchanges[0]
 
@@ -185,6 +185,11 @@ def load_data(
                         raise lakeapi.exceptions.NoFilesFound("No data found for your query in the free sample dataset. Please subscribe to access more data.")
                     else:
                         raise
+                except botocore.exceptions.UnauthorizedSSOTokenError as ex:
+                    raise PermissionError(
+                        "It seems you use a AWS account and try to access free data. Try using "
+                        "`use_sample_data(anonymous_access=False)` or read https://github.com/crypto-lake/lake-api/issues/7."
+                    )
             else:
                 # got error 404 both before and after the cache.clear()
                 raise last_ex
