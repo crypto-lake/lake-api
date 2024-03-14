@@ -213,7 +213,7 @@ def load_data(
         df.rename(columns={"timestamp": "origin_time"}, inplace=True)
         df["origin_time"] = pd.to_datetime(df["origin_time"], unit="ns", cache=True)
     if "next_funding_time" in df.columns:
-        df["next_funding_time"] = pd.to_datetime(df["next_funding_time"], unit="s", cache=True)
+        df.rename(columns={"next_funding_time": "ns_until_next_funding_time"}, inplace=True)
     if table == "trades":
         df.rename(columns={"id": "trade_id"}, inplace=True)
 
