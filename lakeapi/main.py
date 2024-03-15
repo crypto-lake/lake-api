@@ -15,6 +15,7 @@ import boto3
 import botocore
 import botocore.exceptions
 import pandas as pd
+import pandas.errors
 from cachetools_ext.fs import FSLRUCache
 from botocache.botocache import botocache_context
 from aws_requests_auth.aws_auth import AWSRequestsAuth
@@ -213,7 +214,10 @@ def load_data(
         df.rename(columns={"timestamp": "origin_time"}, inplace=True)
         df["origin_time"] = pd.to_datetime(df["origin_time"], unit="ns", cache=True)
     if "next_funding_time" in df.columns:
-        df["next_funding_time"] = pd.to_datetime(df["next_funding_time"], unit="s", cache=True)
+        try:
+            df["next_funding_time"] = pd.to_datetime(df["next_funding_time"], unit="s", cache=True)
+        except pandas.errors.OutOfBoundsDatetime:
+            df["next_funding_time"] = pd.to_datetime(df["next_funding_time"], unit="ns", cache=True)
     if table == "trades":
         df.rename(columns={"id": "trade_id"}, inplace=True)
 
@@ -453,9 +457,11 @@ def available_symbols(
 if __name__ == "__main__":
     # session = boto3.Session(profile_name='', region_name="eu-west-1")
     # Test
-    df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
+    # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
+    # df = load_data(table = 'trades_mpid', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['stSOL-USDC'], exchanges = ['SERUM']) # noqa
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = None, exchanges = ['BINANCE']) # noqa
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 4), end = None, symbols = ['TEST-USDT'], exchanges = None) #, boto3_session=session) # noqa
+    df = load_data(table = 'funding', start = datetime.datetime.now() - datetime.timedelta(days = 465), end = datetime.datetime.now() - datetime.timedelta(days = 464), symbols = ['BTC-USDT-PERP'], exchanges = ['BINANCE_FUTURES']) #, boto3_session=session) # noqa
     # df = load_data(table = 'book', start = datetime.datetime.now() - datetime.timedelta(days = 1), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = _load_data_cloudfront(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 2), end = None, symbols = ['XCAD-USDT'], exchanges = None) # noqa
     # df = load_data(
