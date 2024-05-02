@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, Tuple
 from numba import float64, njit
-from numba.typed import Dict
+from numba.typed import Dict, List
 
 if TYPE_CHECKING:
 	import pandas as pd
@@ -13,39 +13,60 @@ class OrderBookUpdater:
 		self.ask = Dict.empty(key_type = float64, value_type = float64)
 		self.current_index = 0
 		self.received_timestamp = None
-		self.np_arr = df[['bids', 'asks']].to_numpy()
-		self.received_times = df['received_time'].to_numpy()
+		self.sequence_number = None
+		self.int_arr = df[['received_time', 'sequence_number']].astype('int64').values
+		self.np_arr = df[['side_is_bid', 'price', 'size']].astype('float64').values
+		self._bests_cache = List()
+		self._bests_cache.append(0.)
+		self._bests_cache.append(0.)
 
 	@staticmethod
-	@njit(cache = False)
-	def _update(bids, asks, bid_book, ask_book):
-		if len(bids):
-			for price, size in bids:
+	@njit(cache = True)
+	def _update_more(side_is_bid, prices, sizes, received_time, sequence_number, current_index, bid_book, ask_book, bests_cache):
+		starting_received_time = received_time[current_index]
+		while received_time[current_index] == starting_received_time:
+			price = prices[current_index]
+			size = sizes[current_index]
+			if side_is_bid[current_index]:
 				if size == 0:
 					if price in bid_book:
 						del bid_book[price]
+					if bests_cache[0] == price:
+						bests_cache[0] = 0.
 				else:
 					bid_book[price] = size
-		if len(asks) > 0:
-			for price, size in asks:
+					if price > bests_cache[0]:
+						bests_cache[0] = price
+			else:
 				if size == 0:
 					if price in ask_book:
 						del ask_book[price]
+					if bests_cache[1] == price:
+						bests_cache[1] = 0.
 				else:
 					ask_book[price] = size
+					if price < bests_cache[1]:
+						bests_cache[1] = price
+			current_index += 1
+			if current_index >= prices.shape[0]:
+				break
+		return current_index, sequence_number[current_index-1], received_time[current_index-1]
 
-	def process_next_row(self, row: Optional[int] = None) -> None:
+	def process_next_update(self, starting_row: Optional[int] = None) -> int:
 		''' row in df contains received_time, bid and ask columns with numpy list of price-quantity pairs'''
 		if self.current_index >= self.np_arr.shape[0]:
-			# return
-			raise StopIteration
-		if row is not None:
-			self.current_index = row
+			return 0
+		if starting_row is not None:
+			self.current_index = starting_row
 
-		self._update(*self.np_arr[self.current_index], self.bid, self.ask)
-		self.received_timestamp = self.received_times[self.current_index]
-		self.current_index += 1
+		self.current_index, self.sequence_number, self.received_timestamp = \
+			self._update_more(*self.np_arr.T, *self.int_arr.T, self.current_index, self.bid, self.ask, self._bests_cache)
+
+		return self.current_index
 
 	def get_bests(self) -> Tuple[float, float]:
-		# TODO speed up
-		return max(self.bid), min(self.ask)
+		if not self._bests_cache[0]:
+			self._bests_cache[0] = max(self.bid)
+		if not self._bests_cache[1]:
+			self._bests_cache[1] = min(self.ask)
+		return tuple(self._bests_cache)
