@@ -648,7 +648,7 @@ def pyarrow_schema_from_pandas(
 
 def athena_types_from_pyarrow_schema(
     schema: pa.Schema,
-    partitions: Optional[pyarrow.parquet.ParquetPartitions],
+    partitions: Optional['pyarrow.parquet.ParquetPartitions'],
     ignore_null: bool = False,
 ) -> Tuple[Dict[str, str], Optional[Dict[str, str]]]:
     """Extract the related Athena data types from any PyArrow Schema considering possible partitions."""

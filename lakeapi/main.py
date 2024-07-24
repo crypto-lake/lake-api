@@ -221,7 +221,7 @@ def load_data(
     if table == "trades":
         df.rename(columns={"id": "trade_id"}, inplace=True)
 
-    lakeapi._cache._store.reduce_size()
+    lakeapi._cache._store.reduce_size(lakeapi._cache.default_bytes_limit)
     return df
 
 
