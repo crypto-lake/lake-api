@@ -10,6 +10,7 @@ verbose_cache = 0
 _store: joblib.Memory = joblib.Memory(
 	'.lake_cache',
 	compress = 0,
+	bytes_limit = default_bytes_limit,
 	verbose = verbose_cache,
 )
 cached: Callable[..., Callable[..., Any]] = _store.cache

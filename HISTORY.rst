@@ -2,6 +2,13 @@
 History
 =======
 
+0.15.0 (2024-07-24)
+-------------------
+
+* fix conflict of new numpy 2 and older pyarrow
+* improve tox tests
+* add missing numba dependency needed by orderbook class (the rest works without numba)
+
 0.14.0 (2023-05-02)
 -------------------
 
