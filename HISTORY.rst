@@ -2,6 +2,11 @@
 History
 =======
 
+0.16.0 (2024-08-06)
+-------------------
+
+* improve data loading performance, especially for the first time
+
 0.15.0 (2024-07-24)
 -------------------
 
