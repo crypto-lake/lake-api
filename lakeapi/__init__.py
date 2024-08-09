@@ -2,6 +2,6 @@
 
 __author__ = 'Jan Skoda'
 __email__ = 'skoda@jskoda.cz'
-__version__ = '0.16.0'
+__version__ = '0.17.0'
 
 from .main import load_data, list_data, available_symbols, set_default_bucket, use_sample_data, cache, set_cache_size_limit # noqa
