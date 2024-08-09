@@ -2,6 +2,10 @@
 History
 =======
 
+0.17.0 (2024-08-09)
+
+* orderbook class performance improvements
+
 0.16.0 (2024-08-06)
 -------------------
 
