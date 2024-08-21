@@ -2,7 +2,13 @@
 History
 =======
 
+0.18.0 (2024-08-21)
+-------------------
+
+* fix KeyError: 'dt' with s3 method
+
 0.17.0 (2024-08-09)
+-------------------
 
 * orderbook class performance improvements
 

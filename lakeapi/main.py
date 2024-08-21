@@ -126,7 +126,8 @@ def load_data(
 
     def partition_filter(partition: Dict[str, str]) -> bool:
         return (
-            (
+            "dt" in partition
+            and (
                 start is None
                 or start.date() <= datetime.date.fromisoformat(partition["dt"])
             )
@@ -159,7 +160,6 @@ def load_data(
             last_ex = None
             for _ in range(2):
                 try:
-                    # TODO: log & skip corrupted files
                     df = lakeapi._read_parquet.read_parquet(
                         path=f"s3://{bucket}/{table}/",
                         partition_filter=partition_filter,
