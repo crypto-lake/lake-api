@@ -390,7 +390,8 @@ def list_data(
 
     def partition_filter(partition: Dict[str, str]) -> bool:
         return (
-            (
+            "dt" in partition
+            and (
                 start is None
                 or start.date() <= datetime.date.fromisoformat(partition["dt"])
             )
