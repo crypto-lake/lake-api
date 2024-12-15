@@ -31,7 +31,7 @@ import lakeapi._utils
 import lakeapi.exceptions
 
 DataType = Literal[
-    "book", "book_delta", "trades", "trades_mpid", "candles", "level_1", "funding", "open_interest", "liquiditions",
+    "book", "book_delta", "trades", "trades_mpid", "candles", "level_1", "funding", "open_interest", "liquidations",
     "book_1m"
 ]
 
