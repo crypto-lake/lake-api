@@ -442,12 +442,13 @@ def _get_table_contents_cache_key(boto3_session: boto3.Session, bucket: str, tab
     try:
         s3 = boto3_session.client('s3')
         s3_bucket, prefix = bucket.split('/', 1)
-        obj = s3.get_object(Bucket=s3_bucket, Key=f'{prefix}/{table}/contents.json.gz')
+        key = f'{prefix}/{table}/contents.json.gz'
+        obj = s3.get_object(Bucket=s3_bucket, Key=key)
         paths = json.loads(zlib.decompress(obj['Body'].read()).decode('utf-8'))['objects']
         paths = [f's3://{s3_bucket}/{path}' for path in paths]
         return paths
     except Exception as ex:
-        print('Warning: error while fetching from contents cache, using slower method', ex)
+        print('Warning: error while fetching from contents cache at =', s3_bucket, key, ', using slower method:', ex)
 
 def _path_to_dict(path: str) -> Dict[str, Any]:
     *_, table, exchange, symbol, dt, filename = path.split('/')
