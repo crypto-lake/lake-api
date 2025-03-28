@@ -178,6 +178,7 @@ def load_data(
                     if int(ex.response['Error']['Code']) == 404:
                         # An error occurred (404) when calling the HeadObject operation: Not Found
                         cache.clear()
+                        contents_cache.clear()
                         last_ex = ex
                         continue
                     else:
@@ -353,6 +354,7 @@ def _download_one(auth, url: str, username: str) -> pd.DataFrame:
     response = requests.get(url, auth = auth, headers = {'Referer': username, 'User-Agent': f'lakeapi/{lakeapi.__version__}'})
 
     if response.status_code == 404:
+        contents_cache.clear()
         return pd.DataFrame()
     elif response.status_code != 200:
         print('Warning: Unexpected status code', response.status_code, 'for', url)
@@ -437,7 +439,8 @@ def list_data(
         raise lakeapi.exceptions.NoFilesFound(f"No files Found on: {path}.")
     return [_path_to_dict(path) for path in paths]
 
-@cachetools.cached(cache=FSLRUCache(maxsize=32, path = '.lake_cache/contents', ttl=3600), key=lambda sess, bucket, table: f'bucket={bucket[:7]}-table={table}')
+contents_cache = FSLRUCache(maxsize=32, path = '.lake_cache/contents', ttl=3600)
+@cachetools.cached(cache=contents_cache, key=lambda sess, bucket, table: f'bucket={bucket[:7]}-table={table}')
 def _get_table_contents_cache_key(boto3_session: boto3.Session, bucket: str, table: str):
     try:
         s3 = boto3_session.client('s3')
@@ -477,6 +480,26 @@ def available_symbols(
     counts = df.groupby(['exchange', 'symbol']).filename.count()
     counts.name = 'days_available'
     return counts.sort_values(ascending = False)
+
+@cachetools.cached(cache=FSLRUCache(maxsize=8, path = '.lake_cache/used_data', ttl=60), key=lambda sess=None: f'data')
+def used_data(boto3_session: Optional[boto3.Session] = None):
+    '''
+    get used data in gigabytes
+
+    Example:
+    {
+    "downloaded_gb": 151.35,
+    "timeframe_days": 31,
+    "user": "my-user-email@gmail.com",
+    }
+    '''
+    if boto3_session is None:
+        boto3_session = boto3.Session(region_name="eu-west-1")
+    user_arn, _method = _login(boto3_session, 'trades')
+    username = user_arn.split('/')[-1]
+    response = requests.get('https://api.crypto-lake.com/' + username, headers = {'User-Agent': f'lakeapi/{lakeapi.__version__}'})
+    response.raise_for_status()
+    return response.json()
 
 
 if __name__ == "__main__":

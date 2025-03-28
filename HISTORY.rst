@@ -2,6 +2,12 @@
 History
 =======
 
+0.20.0 (2025-03-28)
+-------------------
+
+* new used_data function
+* clear cache on 404 to read new contents
+
 0.19.1 (2024-12-16)
 -------------------
 
