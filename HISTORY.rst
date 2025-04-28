@@ -2,6 +2,11 @@
 History
 =======
 
+0.20.1 (2025-04-28)
+-------------------
+
+* fix UnboundLocalError in _get_table_contents_cache_key when non-existing table is passed
+
 0.20.0 (2025-03-28)
 -------------------
 

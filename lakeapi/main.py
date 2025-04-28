@@ -451,7 +451,7 @@ def _get_table_contents_cache_key(boto3_session: boto3.Session, bucket: str, tab
         paths = [f's3://{s3_bucket}/{path}' for path in paths]
         return paths
     except Exception as ex:
-        print('Warning: error while fetching from contents cache at =', s3_bucket, key, ', using slower method:', ex)
+        print('Warning: error while fetching from contents cache at =', bucket, table, ', using slower method:', ex)
 
 def _path_to_dict(path: str) -> Dict[str, Any]:
     *_, table, exchange, symbol, dt, filename = path.split('/')
@@ -484,13 +484,14 @@ def available_symbols(
 @cachetools.cached(cache=FSLRUCache(maxsize=8, path = '.lake_cache/used_data', ttl=60), key=lambda sess=None: f'data')
 def used_data(boto3_session: Optional[boto3.Session] = None):
     '''
-    get used data in gigabytes
+    Get used data in gigabytes. Note that the calculation can have to 60 minute delay!
 
     Example:
     {
     "downloaded_gb": 151.35,
     "timeframe_days": 31,
     "user": "my-user-email@gmail.com",
+    "update_timestamp": 1656585600,
     }
     '''
     if boto3_session is None:
