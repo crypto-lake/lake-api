@@ -504,7 +504,7 @@ def used_data(boto3_session: Optional[boto3.Session] = None):
 
 
 if __name__ == "__main__":
-    # session = boto3.Session(profile_name='', region_name="eu-west-1")
+    # session = boto3.Session(profile_name='default', region_name="eu-west-1")
     # Test
     # df = load_data(table = 'trades', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['BTC-USDT'], exchanges = ['BINANCE']) # noqa
     # df = load_data(table = 'trades_mpid', start = datetime.datetime.now() - datetime.timedelta(days = 3), end = None, symbols = ['stSOL-USDC'], exchanges = ['SERUM']) # noqa

@@ -2,6 +2,11 @@
 History
 =======
 
+0.21.0 (2025-05-04)
+-------------------
+
+* fix joblib issue with unexpected keyword argument 'bytes_limit'
+
 0.20.1 (2025-04-28)
 -------------------
 
