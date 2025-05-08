@@ -11,19 +11,22 @@ class OrderBookUpdater:
 	def __init__(self, df: 'pd.DataFrame', depth_limit_min: int = 3000, depth_limit_max: int = 5000):
 		self.bid = Dict.empty(key_type = float64, value_type = float64)
 		self.ask = Dict.empty(key_type = float64, value_type = float64)
-		self.current_index = 0
 		self.received_timestamp = None
 		self.sequence_number = None
-		self._received_time = df['received_time'].astype('int64').values
-		self._sequence_number = df['sequence_number'].astype('int64').values
-		self._side_is_bid = df['side_is_bid'].astype('float64').values
-		self._price = df['price'].astype('float64').values
-		self._size = df['size'].astype('float64').values
 		self.depth_limit_min = depth_limit_min
 		self.depth_limit_max = depth_limit_max
 		self._bests_cache = List()
 		self._bests_cache.append(0.)
 		self._bests_cache.append(0.)
+		self.switch_to_next_day(df)
+
+	def switch_to_next_day(self, df: 'pd.DataFrame') -> None:
+		self.current_index = 0
+		self._received_time = df['received_time'].astype('int64').values
+		self._sequence_number = df['sequence_number'].astype('int64').values
+		self._side_is_bid = df['side_is_bid'].astype('float64').values
+		self._price = df['price'].astype('float64').values
+		self._size = df['size'].astype('float64').values
 
 	@staticmethod
 	@njit(cache = True)
