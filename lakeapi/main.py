@@ -427,7 +427,7 @@ def list_data(
                 path=path,
                 boto3_session=boto3_session,
                 # suffix=path_suffix,
-                # ignore_suffix=_get_path_ignore_suffix(path_ignore_suffix=path_ignore_suffix),
+                ignore_suffix='contents.json.gz',
                 last_modified_begin=last_modified_begin,
                 last_modified_end=last_modified_end,
                 # ignore_empty=ignore_empty,

@@ -2,6 +2,11 @@
 History
 =======
 
+0.22.1 (2025-05-15)
+
+* fix list_data bug in last_modified_begin parameter
+* check for crossed bests in orderbook.py on day boundaries
+
 0.22.0 (2025-05-08)
 -------------------
 
