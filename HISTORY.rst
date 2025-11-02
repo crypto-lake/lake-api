@@ -2,7 +2,14 @@
 History
 =======
 
+0.22.2 (2025-11-02)
+-------------------
+
+* fix joblib issue with unexpected keyword argument 'bytes_limit'
+
+
 0.22.1 (2025-05-15)
+-------------------
 
 * fix list_data bug in last_modified_begin parameter
 * check for crossed bests in orderbook.py on day boundaries

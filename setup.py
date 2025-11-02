@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
    'pandas>=1.0.5,<3', 'boto3>=1.24,<2', 'cachetools_ext>=0.0.8,<0.1.0', 'botocache>=0.0.4,<0.1.0',
-   'joblib>=1.0.0,<1.5.0', 'tqdm>=4,<5', 'pyarrow>=2.0.0', 'aws-requests-auth==0.4.3', 'numba',
+   'joblib>=1.3.0,<1.6.0', 'tqdm>=4,<5', 'pyarrow>=2.0.0', 'aws-requests-auth==0.4.3', 'numba',
    'typing-extensions>=4.0,<5; python_version < \'3.8\''
 ]
 
